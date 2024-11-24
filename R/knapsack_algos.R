@@ -1,79 +1,97 @@
+library(parallel)
 
-brute_force_knapsack <- function(x, W) {
-  if (!is.data.frame(x) || !all(c("w", "v") %in% names(x)) || any(x$w <= 0) || any(x$v <= 0) || W < 0) {
-    stop("Invalid input.")
+brute_force_knapsack <- function(x, W, parallel = FALSE) {
+  if (!is.data.frame(x) || !all(c("w", "v") %in% colnames(x)) || any(x$w <= 0) || any(x$v <= 0)) {
+    stop("Input x must be a data frame with positive 'w' and 'v' columns")
   }
+  if (!is.numeric(W) || W <= 0) stop("W must be a positive number")
 
   n <- nrow(x)
-  best_value <- 0
-  best_combination <- NULL
+  max_value <- 0
+  best_elements <- NULL
 
-  # Loop through all possible combinations (from 1 to 2^n)
-  for (i in 1:(2^n)) {
-    included <- as.logical(intToBits(i)[1:n])
-    total_weight <- sum(x$w[included])
-    total_value <- sum(x$v[included])
+  if (parallel){
+    cl <- makeCluster(2)
+    registerDoParallel(cl)
+    foreach(i=0:(2^n -1)) %dopar% {
+      combination <- as.logical(intToBits(i)[1:n])
+      total_weight <- sum(x$w[combination])
+      total_value <- sum(x$v[combination])
 
-    if (total_weight <= W && total_value > best_value) {
-      best_value <- total_value
-      best_combination <- which(included)
+      if (total_weight <= W && total_value > max_value) {
+        max_value <- total_value
+        best_elements <- which(combination)
+      }
     }
+    stopCluster(cl)
   }
+  else{
+    for (i in 0:(2^n - 1)) {
+      combination <- as.logical(intToBits(i)[1:n])
+      total_weight <- sum(x$w[combination])
+      total_value <- sum(x$v[combination])
 
-  return(list(value = best_value, elements = best_combination))
-}
-
-knapsack_dynamic <- function(x, W) {
-  if (!is.data.frame(x) || !all(c("w", "v") %in% names(x)) || any(x$w <= 0) || any(x$v <= 0) || W < 0) {
-    stop("Invalid input.")
-  }
-
-  n <- nrow(x)
-  dp <- matrix(0, n+1, W+1)
-
-  for (i in 1:n) {
-    for (w in 0:W) {
-      if (x$w[i] > w) {
-        dp[i+1, w+1] <- dp[i, w+1]
-      } else {
-        dp[i+1, w+1] <- max(dp[i, w+1], dp[i, w - x$w[i] + 1] + x$v[i])
+      if (total_weight <= W && total_value > max_value) {
+        max_value <- total_value
+        best_elements <- which(combination)
       }
     }
   }
 
-  best_value <- dp[n+1, W+1]
+  list(value = max_value, elements = best_elements)
+}
+
+knapsack_dynamic <- function(x, W) {
+  if (!is.data.frame(x) || !all(c("w", "v") %in% colnames(x)) || any(x$w <= 0) || any(x$v <= 0)) {
+    stop("Input x must be a data frame with positive 'w' and 'v' columns")
+  }
+  if (!is.numeric(W) || W <= 0) stop("W must be a positive number")
+
+  n <- nrow(x)
+  dp <- matrix(0, n + 1, W + 1)
+
+  for (i in 1:n) {
+    for (w in 0:W) {
+      if (x$w[i] > w) {
+        dp[i + 1, w + 1] <- dp[i, w + 1]
+      } else {
+        dp[i + 1, w + 1] <- max(dp[i, w + 1], dp[i, w + 1 - x$w[i]] + x$v[i])
+      }
+    }
+  }
+
+  max_value <- dp[n + 1, W + 1]
   w <- W
-  elements <- c()
+  elements <- numeric()
 
   for (i in n:1) {
-    if (dp[i+1, w+1] != dp[i, w+1]) {
+    if (dp[i + 1, w + 1] != dp[i, w + 1]) {
       elements <- c(elements, i)
       w <- w - x$w[i]
     }
   }
 
-  return(list(value = best_value, elements = elements))
+  list(value = max_value, elements = elements)
 }
 
 greedy_knapsack <- function(x, W) {
-  if (!is.data.frame(x) || !all(c("w", "v") %in% names(x)) || any(x$w <= 0) || any(x$v <= 0) || W < 0) {
-    stop("Invalid input.")
+  if (!is.data.frame(x) || !all(c("w", "v") %in% colnames(x)) || any(x$w <= 0) || any(x$v <= 0)) {
+    stop("Input x must be a data frame with positive 'w' and 'v' columns")
   }
+  if (!is.numeric(W) || W <= 0) stop("W must be a positive number")
 
-  # Sort items by value-to-weight ratio (descending)
-  x <- x[order(x$v / x$w, decreasing = TRUE), ]
-
+  x <- x[order(-x$v / x$w), ]
   total_value <- 0
   total_weight <- 0
-  elements <- c()
+  elements <- numeric()
 
   for (i in 1:nrow(x)) {
     if (total_weight + x$w[i] <= W) {
-      total_weight <- total_weight + x$w[i]
-      total_value <- total_value + x$v[i]
       elements <- c(elements, i)
+      total_value <- total_value + x$v[i]
+      total_weight <- total_weight + x$w[i]
     }
   }
 
-  return(list(value = total_value, elements = elements))
+  list(value = total_value, elements = elements)
 }

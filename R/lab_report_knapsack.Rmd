@@ -1,0 +1,23 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+For n=16 objects, the brute force search must iterate through 65536 combinations.
+
+For n=500 objects, the dynamic programming approach must iterate through 500*W combinations.
+
+For n=1000000 objects, the greedy heuristic must iterate through 6000000 combinations.
