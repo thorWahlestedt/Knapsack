@@ -1,0 +1,25 @@
+---
+title: "lab-report-knapsack"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{lab-report-knapsack}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(Knapsack)
+```
+
+For n=16 objects, the brute force search must iterate through 65536 combinations.
+
+For n=500 objects, the dynamic programming approach must iterate through 500*W combinations.
+
+For n=1000000 objects, the greedy heuristic must iterate through 6000000 combinations.
