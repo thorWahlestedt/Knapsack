@@ -1,0 +1,27 @@
+Package: Knapsack
+Type: Package
+Title: Knapsack Algorithms
+Version: 0.1.0
+Author: Thor Wahlestedt (thowa194)
+Maintainer: Thor Wahlestedt <thowa194@student.liu.se>
+Description: 
+    This package implements and utilizes three different algorithms for knapsack, 
+    aiming to showcase the effects of algorithms with varying computational 
+    complexity and how one might speedup R code.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports:
+    foreach,
+    parallel
+Suggests: 
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    diffobj
+Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+VignetteBuilder: knitr
+Depends: 
+    R (>= 3.5)
