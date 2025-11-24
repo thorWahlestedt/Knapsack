@@ -26,7 +26,7 @@ brute_force_knapsack <- function(x, W, parallel = FALSE) {
   n <- nrow(x)
   max_value <- 0
   best_elements <- NULL
-
+  #check
   if (parallel){
     cores <- parallel::detectCores()
     cl <- makeCluster(cores)
