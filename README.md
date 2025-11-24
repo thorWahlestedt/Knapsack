@@ -15,7 +15,17 @@ The goal of Knapsack is to …
 You can install the development version of Knapsack like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+This package implements several knapsack algorithms with different computational
+complexities. It is created as part of the course work for demonstrating 
+algorithmic efficiency and optimization in R.
+
+## Installation
+
+You can install the development version of **Knapsack** from GitHub using:
+
+```r
+# install.packages("devtools")
+devtools::install_github("thorWahlestedt/Knapsack")
 ```
 
 ## Example
@@ -31,14 +41,19 @@ What is special about using `README.Rmd` instead of just `README.md`?
 You can include R chunks like so:
 
 ``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+library(Knapsack)
+
+items <- data.frame(
+  w = c(12, 7, 11, 8, 9),
+  v = c(24, 13, 23, 15, 16)
+)
+
+W <- 26
+
+greedy_knapsack(items, W)
+knapsack_dynamic(items, W)
+
+
 ```
 
 You’ll still need to render `README.Rmd` regularly, to keep `README.md`
