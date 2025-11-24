@@ -1,4 +1,7 @@
 # R/knapsack_algos.R
+#' @importFrom parallel makeCluster detectCores stopCluster
+#' @import foreach
+NULL
 # Knapsack solvers: brute-force (optionally parallel), dynamic programming, greedy heuristic
 # Dependencies: base R + parallel + foreach
 
@@ -70,12 +73,15 @@ brute_force_knapsack <- function(x, W, parallel = FALSE) {
 #' x <- data.frame(w = c(2,3,4), v = c(3,4,5)); knapsack_dynamic(x, 5)
 #' @export
 knapsack_dynamic <- function(x, W) {
+
   if (!is.data.frame(x) || !all(c("w", "v") %in% colnames(x)) || any(x$w <= 0) || any(x$v <= 0)) {
     stop("Input x must be a data frame with positive 'w' and 'v' columns")
   }
   if (!is.numeric(W) || W <= 0) stop("W must be a positive number")
 
+
   n <- nrow(x)
+  x$w <- as.integer(x$w)
   dp <- matrix(0, n + 1, W + 1)
 
   for (i in 1:n) {
@@ -90,7 +96,7 @@ knapsack_dynamic <- function(x, W) {
 
   max_value <- dp[n + 1, W + 1]
   w <- W
-  elements <- numeric()
+  elements <- integer(0)
 
   for (i in n:1) {
     if (dp[i + 1, w + 1] != dp[i, w + 1]) {
@@ -98,8 +104,7 @@ knapsack_dynamic <- function(x, W) {
       w <- w - x$w[i]
     }
   }
-
-  list(value = max_value, elements = elements)
+  list(value = as.numeric(max_value), elements = as.integer(sort(elements)))
 }
 
 #' Greedy knapsack heuristic
@@ -118,8 +123,9 @@ greedy_knapsack <- function(x, W) {
   if (!is.numeric(W) || W <= 0) stop("W must be a positive number")
 
   # Save original indices before sorting
-  orig_idx <- seq_len(nrow(x))
-  ord <- order(- (x$v / x$w))   # decreasing ratio
+  n <- nrow(x)
+  orig_idx <- seq_len(n)
+  ord <- order(- (x$v / x$w), seq_len(n))   # decreasing ratio
   x_sorted <- x[ord, , drop = FALSE]
   idx_sorted <- orig_idx[ord]
 
@@ -127,7 +133,7 @@ greedy_knapsack <- function(x, W) {
   total_weight <- 0
   elements <- integer(0)
 
-  for (i in seq_len(nrow(x_sorted))) {
+  for (i in seq_len(n)) {
     if (total_weight + x_sorted$w[i] <= W) {
       elements <- c(elements, idx_sorted[i])  # append original index
       total_value <- total_value + x_sorted$v[i]
@@ -135,6 +141,5 @@ greedy_knapsack <- function(x, W) {
     }
   }
 
-  elements <- sort(as.integer(elements))
-  list(value = total_value, elements = elements)
+  list(value = as.numeric(total_value), elements = as.integer(sort(elements)))
 }

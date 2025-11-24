@@ -3,3 +3,7 @@
 export(brute_force_knapsack)
 export(greedy_knapsack)
 export(knapsack_dynamic)
+import(foreach)
+importFrom(parallel,detectCores)
+importFrom(parallel,makeCluster)
+importFrom(parallel,stopCluster)
